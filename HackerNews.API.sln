@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackerNews.API", "HackerNews.API\HackerNews.API.csproj", "{3C2637F2-26A0-416F-A9FC-B24DCEC81303}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackerNews.Core", "HackerNews.Integration\HackerNews.Core.csproj", "{74176994-D78B-424B-9BCE-4BCF62CA2402}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackerNews.UnitTest", "HackerNews.UnitTest\HackerNews.UnitTest.csproj", "{94E4A03E-A843-4A95-8AA3-612A19982128}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3C2637F2-26A0-416F-A9FC-B24DCEC81303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C2637F2-26A0-416F-A9FC-B24DCEC81303}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C2637F2-26A0-416F-A9FC-B24DCEC81303}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C2637F2-26A0-416F-A9FC-B24DCEC81303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74176994-D78B-424B-9BCE-4BCF62CA2402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74176994-D78B-424B-9BCE-4BCF62CA2402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74176994-D78B-424B-9BCE-4BCF62CA2402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74176994-D78B-424B-9BCE-4BCF62CA2402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94E4A03E-A843-4A95-8AA3-612A19982128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94E4A03E-A843-4A95-8AA3-612A19982128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94E4A03E-A843-4A95-8AA3-612A19982128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94E4A03E-A843-4A95-8AA3-612A19982128}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
