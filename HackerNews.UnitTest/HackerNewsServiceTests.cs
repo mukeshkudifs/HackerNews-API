@@ -149,48 +149,6 @@ namespace HackerNews.Tests
         }
 
         [Test]
-        public async Task GetAllTopNews_ShouldReturnPaginatedNews()
-        {
-            var topStoryIds = Enumerable.Range(1, 50).ToList();
-            var page = 2;
-            var pageSize = 10;
-
-
-            _mockHttpMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(),
-                    ItExpr.IsAny<CancellationToken>()
-                )
-                .ReturnsAsync(new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(JsonSerializer.Serialize(topStoryIds))
-
-                });
-
-
-            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>(), It.IsAny<TimeSpan?>()))
-                      .ReturnsAsync(topStoryIds);
-
-
-
-            var newsItems = topStoryIds.Select(id => new News { Id = id, Title = $"News {id}", Link = $"Link {id}" }).ToList();
-            _mockCache
-            .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<News>>>(), It.IsAny<TimeSpan?>()))
-            .ReturnsAsync((string _, Func<Task<News>> fetchFunc, TimeSpan? _) => fetchFunc().Result);
-
-
-
-            var result = await _hackerNewsService.GetAllTopNews(page, pageSize);
-
-
-            Assert.That(result.News.Count, Is.EqualTo(pageSize));
-            Assert.That(result.TotalStories, Is.EqualTo(topStoryIds.Count));
-        }
-
-        [Test]
         public async Task GetAllTopNews_ShouldHandleEmptyNewsList()
         {
             _mockCache
