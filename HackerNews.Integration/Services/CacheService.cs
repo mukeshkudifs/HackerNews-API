@@ -12,7 +12,7 @@ namespace HackerNews.Integration.Services
             _cache = cache;
         }
 
-        public async Task<T?> GetOrCreateAsync<T>(string cacheKey, Func<Task<T>> fetchFunction)
+        public async Task<T?> GetOrCreateAsync<T>(string cacheKey, Func<Task<T>> fetchFunction, TimeSpan? expiration = null)
         {
             var cachedData = await _cache.GetOrCreateAsync(cacheKey, async entry =>
               {

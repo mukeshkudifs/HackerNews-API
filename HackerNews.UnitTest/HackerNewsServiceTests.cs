@@ -40,13 +40,15 @@ namespace HackerNews.Tests
         public async Task GetTopNewsIDs_ShouldReturnCachedData_WhenAvailable()
         {
             var cachedData = new List<int> { 1, 2, 3 };
-            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>()))
+
+            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>(), It.IsAny<TimeSpan?>()))
                       .ReturnsAsync(cachedData);
 
             var result = await _hackerNewsService.GetTopNewsIDs();
 
             Assert.That(result, Is.EqualTo(cachedData));
-            _mockCache.Verify(c => c.GetOrCreateAsync(AppConstants.TopStories, It.IsAny<Func<Task<List<int>>>>()), Times.Once);
+
+            _mockCache.Verify(c => c.GetOrCreateAsync(AppConstants.TopStories, It.IsAny<Func<Task<List<int>>>>(), It.IsAny<TimeSpan?>()), Times.Once);
         }
 
         [Test]
@@ -69,8 +71,8 @@ namespace HackerNews.Tests
                 });
 
             _mockCache
-                .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>()))
-                .Returns((string _, Func<Task<List<int>>?> fetchFunc) => fetchFunc());
+                .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>(), It.IsAny<TimeSpan?>()))
+                .Returns((string _, Func<Task<List<int>>> fetchFunc, TimeSpan? _) => fetchFunc());
 
             var result = await _hackerNewsService.GetTopNewsIDs();
 
@@ -82,7 +84,6 @@ namespace HackerNews.Tests
         [Test]
         public void GetTopNewsIDs_ShouldThrowException_WhenAPIFails()
         {
-
             _mockHttpMessageHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -95,8 +96,9 @@ namespace HackerNews.Tests
                     StatusCode = HttpStatusCode.InternalServerError
                 });
 
-            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>()))
-                      .Returns((string _,Func<Task<List<int>>?> fetchFunc)=> fetchFunc());
+            _mockCache
+                .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>(), It.IsAny<TimeSpan?>()))
+                .Returns((string _, Func<Task<List<int>>> fetchFunc, TimeSpan? _) => fetchFunc());
 
             Assert.ThrowsAsync<HttpRequestException>(async () => await _hackerNewsService.GetTopNewsIDs());
         }
@@ -107,8 +109,9 @@ namespace HackerNews.Tests
             var newsId = 1;
             var cachedNews = new News { Id = newsId, Title = "Cached News" };
 
-            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<News>>>()))
-                      .ReturnsAsync(cachedNews);
+            _mockCache
+                .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<News>>>(), It.IsAny<TimeSpan?>()))
+                .ReturnsAsync(cachedNews);
 
             var result = await _hackerNewsService.GetNews(newsId);
 
@@ -132,12 +135,12 @@ namespace HackerNews.Tests
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Content= new StringContent(jsonResponse)
-                    
-                    });
+                    Content = new StringContent(jsonResponse)
+                });
 
-            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<News>>>()))
-                      .Returns((string _,Func<Task<News>> fetchFunc)=>fetchFunc());
+            _mockCache
+                .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<News>>>(), It.IsAny<TimeSpan?>()))
+                .Returns((string _, Func<Task<News>> fetchFunc, TimeSpan? _) => fetchFunc());
 
             var result = await _hackerNewsService.GetNews(newsId);
 
@@ -148,7 +151,7 @@ namespace HackerNews.Tests
         [Test]
         public async Task GetAllTopNews_ShouldReturnPaginatedNews()
         {
-            var topStoryIds = Enumerable.Range(1, 50).ToList(); 
+            var topStoryIds = Enumerable.Range(1, 50).ToList();
             var page = 2;
             var pageSize = 10;
 
@@ -168,19 +171,21 @@ namespace HackerNews.Tests
                 });
 
 
-            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>()))
+            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>(), It.IsAny<TimeSpan?>()))
                       .ReturnsAsync(topStoryIds);
 
-            
 
-            var newsItems = topStoryIds.Select(id => new News { Id = id, Title = $"News {id}",Link = $"Link {id}" }).ToList();
-            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<News>>>()))
-                      .ReturnsAsync((string _, Func<Task<News>> _) => newsItems.FirstOrDefault());
+
+            var newsItems = topStoryIds.Select(id => new News { Id = id, Title = $"News {id}", Link = $"Link {id}" }).ToList();
+            _mockCache
+            .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<News>>>(), It.IsAny<TimeSpan?>()))
+            .ReturnsAsync((string _, Func<Task<News>> fetchFunc, TimeSpan? _) => fetchFunc().Result);
+
 
 
             var result = await _hackerNewsService.GetAllTopNews(page, pageSize);
 
-    
+
             Assert.That(result.News.Count, Is.EqualTo(pageSize));
             Assert.That(result.TotalStories, Is.EqualTo(topStoryIds.Count));
         }
@@ -188,8 +193,10 @@ namespace HackerNews.Tests
         [Test]
         public async Task GetAllTopNews_ShouldHandleEmptyNewsList()
         {
-            _mockCache.Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>()))
-                      .ReturnsAsync(new List<int>());
+            _mockCache
+                .Setup(c => c.GetOrCreateAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<int>>>>(), It.IsAny<TimeSpan?>()))
+                .ReturnsAsync(new List<int>());
+
             var result = await _hackerNewsService.GetAllTopNews();
 
             Assert.That(result.News, Is.Empty);

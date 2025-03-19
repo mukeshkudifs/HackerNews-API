@@ -28,7 +28,8 @@ namespace HackerNews.Integration.Services
                 var json = await response.Content.ReadAsStringAsync();
                 var newsIds= JsonSerializer.Deserialize<List<int>>(json) ?? new List<int>();
                 return newsIds.Take(200).ToList();
-            }
+            },
+            TimeSpan.FromMinutes(5) 
             );
         }
 
@@ -63,7 +64,8 @@ namespace HackerNews.Integration.Services
                     response.EnsureSuccessStatusCode();
                     var json = await response.Content.ReadAsStringAsync();
                     return JsonSerializer.Deserialize<News>(json);
-                }
+                },
+                 TimeSpan.FromMinutes(10)
             );
         }
     }
